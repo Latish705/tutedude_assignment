@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-    localStorage.getItem("accessToken") ? true : false
+    Cookies.get("refreshToken") ? true : false
   );
 
   const login = (aToken: string, rToken: string) => {

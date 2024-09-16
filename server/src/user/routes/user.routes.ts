@@ -30,7 +30,7 @@ userRoutes.get("/me", verifyUser, getUserData);
 // Friendship management routes
 userRoutes.post("/friend/add", verifyUser, addFriend);
 userRoutes.get("/friends", verifyUser, getFriends);
-userRoutes.delete("/friend/remove/:id", verifyUser, removeFriend);
+userRoutes.delete("/friend/remove/:friendId", verifyUser, removeFriend);
 
 // Friend request management routes
 userRoutes.get("/friend/requests", verifyUser, getFriendRequests);

@@ -257,7 +257,7 @@ export const removeFriend = async (req: Request, res: Response) => {
   try {
     //@ts-ignore
     const user = req.user;
-    const { friendId } = req.body;
+    const { friendId } = req.params;
 
     if (!friendId) {
       return res
@@ -291,12 +291,12 @@ export const getFriendRequests = async (req: Request, res: Response) => {
     const user = req.user;
 
     const friendRequests = await Friendship.find({
-      friend: user._id,
+      user: user._id,
       status: "pending",
-    }).populate("user");
+    }).populate("friend");
     console.log("User get friend requests with id:", user.id);
 
-    res.status(200).json({ success: true, friendRequests });
+    res.status(200).json({ success: true, requests: friendRequests });
   } catch (error: any) {
     console.log(error);
 
@@ -309,6 +309,7 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
     //@ts-ignore
     const user = req.user;
     const { userId } = req.body;
+    console.log(userId);
 
     if (!userId) {
       return res
@@ -317,7 +318,7 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
     }
 
     const friendship = await Friendship.findOneAndUpdate(
-      { user: userId, friend: user._id },
+      { user: user._id, friend: userId },
       { status: "accepted" },
       { new: true }
     );

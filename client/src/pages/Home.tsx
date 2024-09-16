@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { backendUrl } from "../App";
@@ -12,7 +12,7 @@ const Home = () => {
   const [friends, setFriends] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchedUsers, setSearchedUsers] = useState<any[]>([]);
+
   const { open, setOpen } = useDialog();
   const [isFriend, setIsFriend] = useState<boolean>(false);
 

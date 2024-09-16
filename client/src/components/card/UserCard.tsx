@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import { CgProfile } from "react-icons/cg";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { backendUrl } from "../../App";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 interface UserCardProps {
   key: string;
@@ -26,7 +26,7 @@ const UserCard = ({ id, username, hobbies, added }: UserCardProps) => {
       }
     );
     if (res.data.success) {
-      console.log("Friend added successfully");
+      toast.success("Friend added successfully");
     }
   };
 
@@ -39,7 +39,9 @@ const UserCard = ({ id, username, hobbies, added }: UserCardProps) => {
         },
       }
     );
-    console.log(res);
+    if (res.data.success) {
+      toast.success("Friend removed successfully");
+    }
   };
 
   return (
