@@ -4,6 +4,10 @@ import Login from "./pages/Login";
 import SignUp from "./pages/Signup";
 import HomeLayout from "./layouts/HomeLayout";
 import Home from "./pages/Home";
+import ProtectRoute from "./services/ProtectRoute";
+import Friends from "./pages/Friends";
+import Profile from "./pages/Profile";
+import { ToastContainer } from "react-toastify";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL as string;
 
@@ -14,9 +18,25 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route element={<HomeLayout />}>
+          {/* <Route element={<ProtectRoute />}> */}
           <Route path="/" element={<Home />} />
+          <Route path="/friends" element={<Friends />} />
+          <Route path="/profile" element={<Profile />} />
+          {/* </Route> */}
         </Route>
       </Routes>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

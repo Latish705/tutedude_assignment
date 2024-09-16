@@ -6,11 +6,11 @@ import axios from "axios";
 // import { login } from "../../store/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { backendUrl } from "../../App";
-// import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { LoginValidation } from "../../validations/LoginValidations";
 
 const LoginForm = () => {
-  // const { login } = useAuth();
+  const { login } = useAuth();
 
   const navigator = useNavigate();
 
@@ -27,7 +27,7 @@ const LoginForm = () => {
       const res = await axios.post(`${backendUrl}/api/user/login`, data);
       if (res.data.success) {
         // dispatch(login(res.data));
-        // login(res.data.accessToken, res.data.refreshToken);
+        login(res.data.accessToken, res.data.refreshToken);
         navigator("/");
       }
     } catch (error: any) {

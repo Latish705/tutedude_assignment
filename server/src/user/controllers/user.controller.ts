@@ -89,11 +89,27 @@ export const loginUser = async (req: Request, res: Response) => {
         .status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
-        .json({ success: true, user: newUser });
+        .json({ success: true, user: newUser, accessToken, refreshToken });
   } catch (error: any) {
     console.log(error);
-
     res.status(400).json({ error: error.message });
+  }
+};
+
+export const getUserData = async (req: Request, res: Response) => {
+  try {
+    //@ts-ignore
+    const user = req.user;
+
+    const db_user = await User.findById(user._id).select(
+      "-password -refreshToken"
+    );
+
+    console.log("User details fetched with id:", user.id);
+    return res.status(200).json({ success: true, user: db_user });
+  } catch (error: any) {
+    console.log("Error getting user data", error.message);
+    return res.status(400).json({ error: error });
   }
 };
 
@@ -113,6 +129,36 @@ export const logoutUser = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.log(error);
 
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const getUserByUsername = async (req: Request, res: Response) => {
+  try {
+    //@ts-ignore
+    const user = req.user;
+    //@ts-ignore
+    const { username } = req.params;
+    console.log("Username:", username);
+
+    const db_user = await User.findOne({ username }).select(
+      "-password -refreshToken"
+    );
+    if (!db_user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+    const isFriend = await Friendship.findOne({
+      user: user._id,
+      friend: db_user._id,
+    });
+
+    console.log("User details fetched by username with id:", user.id);
+    const friend = isFriend ? true : false;
+    return res.status(200).json({ success: true, user: db_user, friend });
+  } catch (error: any) {
+    console.log(error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -191,12 +237,15 @@ export const getFriends = async (req: Request, res: Response) => {
     //@ts-ignore
     const user = req.user;
 
-    const friendships = await Friendship.find({ user: user._id }).populate(
-      "friend"
-    );
-    console.log("User get friends with id:", user.id);
+    // Populate both the 'friend' and 'hobbies' fields from the User model
+    const friendships = await Friendship.find({ user: user._id }).populate({
+      path: "friend",
+      select: "username hobbies",
+    });
 
-    res.status(200).json({ success: true, friendships });
+    console.log("User get friends with id:", user._id);
+
+    res.status(200).json({ success: true, friendships: friendships });
   } catch (error: any) {
     console.log(error);
 
