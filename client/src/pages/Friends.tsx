@@ -18,8 +18,9 @@ const FriendFeature = () => {
             Authorization: `Bearer ${Cookies.get("refreshToken")}`,
           },
         });
+
         if (res.data.success) {
-          setPendingRequests(res.data.requests.map((u: any) => u.friend));
+          setPendingRequests(res.data.requests.map((u: any) => u.user));
         }
       } catch (error) {
         console.error("Error fetching pending requests:", error);
@@ -110,8 +111,8 @@ const FriendFeature = () => {
           </div>
         ) : pendingRequests.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pendingRequests.map((req) => (
-              <div key={req._id} className="border p-4 rounded shadow">
+            {pendingRequests.map((req, index) => (
+              <div key={index} className="border p-4 rounded shadow">
                 <h2 className="text-xl font-semibold">{req.username}</h2>
                 <p>Hobbies: {req.hobbies.join(", ")}</p>
                 <div className="flex gap-4 mt-4">
