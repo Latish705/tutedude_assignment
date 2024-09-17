@@ -22,7 +22,7 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Set loading to true when fetching starts
+      setLoading(true);
       try {
         const [usersRes, friendsRes, mutualFriendsRes, mutualHobbiesRes] =
           await Promise.all([
@@ -59,9 +59,10 @@ const Home = () => {
             setUsers(usersRes.data.users);
           }
         }
+
         if (friendsRes.data.success) {
-          if (friendsRes.data.friendships) {
-            setFriends(friendsRes.data.friendships.map((f: any) => f.friend));
+          if (friendsRes.data.friends) {
+            setFriends(friendsRes.data.friends);
           }
         }
         if (mutualFriendsRes.data.success) {
@@ -98,9 +99,8 @@ const Home = () => {
       );
       if (res.data.success) {
         setSelectedUser(res.data.user);
-        // Check if the user is already a friend
         setIsFriend(res.data.friend);
-        setOpen(true); // Show the dialog
+        setOpen(true);
       } else {
         toast.error("User not found");
       }
@@ -196,7 +196,7 @@ const Home = () => {
                 users.map((u) => (
                   <div
                     key={u._id}
-                    className="flex items-center justify-between w-full p-4"
+                    className="flex items-center justify-between w-full max-w-80"
                   >
                     <UserCard
                       key={u._id}

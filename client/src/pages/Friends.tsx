@@ -80,7 +80,7 @@ const FriendFeature = () => {
   const handleRejectRequest = async (userId: string) => {
     try {
       const res = await axios.post(
-        `${backendUrl}/api/user/friend/requests/reject`,
+        `${backendUrl}/api/user/friend/requests/cancel`,
         { userId },
         {
           headers: {
@@ -88,6 +88,7 @@ const FriendFeature = () => {
           },
         }
       );
+
       if (res.data.success) {
         toast.success("Friend request rejected");
         setPendingRequests(pendingRequests.filter((req) => req._id !== userId));
@@ -122,12 +123,6 @@ const FriendFeature = () => {
                   >
                     Accept
                   </button>
-                  <button
-                    onClick={() => handleRejectRequest(req._id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    Reject
-                  </button>
                 </div>
               </div>
             ))}
@@ -153,16 +148,10 @@ const FriendFeature = () => {
                 <p>Hobbies: {req.hobbies.join(", ")}</p>
                 <div className="flex gap-4 mt-4">
                   <button
-                    onClick={() => handleAcceptRequest(req._id)}
-                    className="bg-green-500 text-white px-4 py-2 rounded"
-                  >
-                    Accept
-                  </button>
-                  <button
                     onClick={() => handleRejectRequest(req._id)}
                     className="bg-red-500 text-white px-4 py-2 rounded"
                   >
-                    Reject
+                    Cancel
                   </button>
                 </div>
               </div>

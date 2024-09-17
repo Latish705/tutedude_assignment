@@ -236,22 +236,33 @@ export const getFriends = async (req: Request, res: Response) => {
   try {
     //@ts-ignore
     const user = req.user;
-
-    // Populate both the 'friend' and 'hobbies' fields from the User model
     const friendships = await Friendship.find({
-      user: user._id,
-      status: "accepted",
-    }).populate({
-      path: "friend",
-      select: "username hobbies",
+      $or: [
+        { user: user._id, status: "accepted" },
+        { friend: user._id, status: "accepted" },
+      ],
+    })
+      .populate({
+        path: "user",
+        select: "username hobbies",
+      })
+      .populate({
+        path: "friend",
+        select: "username hobbies",
+      });
+
+    const friendsList = friendships.map((friendship) => {
+      if (friendship.user._id.toString() === user._id.toString()) {
+        return friendship.friend;
+      }
+      return friendship.user;
     });
 
-    console.log("User get friends with id:", user._id);
+    console.log("User get his friends with id:", user._id);
 
-    res.status(200).json({ success: true, friendships: friendships });
+    res.status(200).json({ success: true, friends: friendsList });
   } catch (error: any) {
-    console.log(error);
-
+    console.log("Error fetching friends:", error.message);
     res.status(400).json({ error: error.message });
   }
 };
@@ -325,6 +336,38 @@ export const getSentFriendRequests = async (req: Request, res: Response) => {
   }
 };
 
+export const cancelSendFriendRequest = async (req: Request, res: Response) => {
+  try {
+    //@ts-ignore
+    const user = req.user;
+    const { userId } = req.body;
+
+    const existingFriendship = await Friendship.findOneAndDelete({
+      user: user._id,
+      friend: userId,
+      status: "pending",
+    });
+
+    if (!existingFriendship) {
+      return res.status(404).json({
+        success: false,
+        message: "Friend request not found or already cancelled.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Friend request cancelled successfully.",
+    });
+  } catch (error: any) {
+    console.log("Error cancelling friend request", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while cancelling the friend request.",
+    });
+  }
+};
+
 export const acceptFriendRequest = async (req: Request, res: Response) => {
   try {
     //@ts-ignore
@@ -339,7 +382,7 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
     }
 
     const friendship = await Friendship.findOneAndUpdate(
-      { user: user._id, friend: userId },
+      { user: userId, friend: user._id },
       { status: "accepted" },
       { new: true }
     );
@@ -387,7 +430,6 @@ export const rejectFriendRequest = async (req: Request, res: Response) => {
     res.status(200).json({ success: true });
   } catch (error: any) {
     console.log(error);
-
     res.status(400).json({ error: error.message });
   }
 };
