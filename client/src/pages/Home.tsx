@@ -10,6 +10,8 @@ import { toast } from "react-toastify";
 const Home = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [friends, setFriends] = useState<any[]>([]);
+  const [mutalFriends, setMutalFriends] = useState<any[]>([]);
+  const [mutalHobbiesFriends, setMutalHobbiesFriends] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -48,8 +50,46 @@ const Home = () => {
       }
     };
 
+    const getAllMutalfriends = async () => {
+      try {
+        const res = await axios.get(
+          `${backendUrl}/api/user/friend/recommendations/mutual-friends`,
+          {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("refreshToken")}`,
+            },
+          }
+        );
+        if (res.data.success) {
+          setMutalFriends(res.data.recommendedFriends);
+        }
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+      }
+    };
+
+    const getAllMutalfriendsWithHobbies = async () => {
+      try {
+        const res = await axios.get(
+          `${backendUrl}/api/user/friend/recommendations/mutual-hobbies`,
+          {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("refreshToken")}`,
+            },
+          }
+        );
+        if (res.data.success) {
+          setMutalHobbiesFriends(res.data.recommendedFriends);
+        }
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+      }
+    };
+
     getAllUsers();
     getAllFriends();
+    getAllMutalfriends();
+    getAllMutalfriendsWithHobbies();
   }, []);
 
   const handleSearch = async () => {
@@ -123,7 +163,11 @@ const Home = () => {
   };
 
   return (
-    <div className={`container mx-auto p-4 ${open ? "dark-overlay" : ""}`}>
+    <div
+      className={`container mx-auto p-4 overflow-scroll ${
+        open ? "dark-overlay" : ""
+      }`}
+    >
       <h1 className="text-3xl font-bold mb-6 text-center">Overview</h1>
 
       {/* Search Input */}
@@ -161,6 +205,54 @@ const Home = () => {
             ))
           ) : (
             <p>No users found</p>
+          )}
+        </div>
+      </section>
+
+      {/* Recommanded User with mutal friends */}
+      <section className="mb-10">
+        <h2 className="text-2xl font-semibold mb-4">
+          Recommended Friends mutal with your friends
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {mutalFriends.length > 0 ? (
+            mutalFriends.map((u) => (
+              <div key={u._id}>
+                <UserCard
+                  key={u._id}
+                  id={u._id}
+                  username={u.username}
+                  hobbies={u.hobbies}
+                  added={true}
+                />
+              </div>
+            ))
+          ) : (
+            <p>No friends found</p>
+          )}
+        </div>
+      </section>
+
+      {/* Recommanded User with mutal friends */}
+      <section className="mb-10">
+        <h2 className="text-2xl font-semibold mb-4">
+          Recommended Friends mutal with your hobbies
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {mutalHobbiesFriends.length > 0 ? (
+            mutalHobbiesFriends.map((u) => (
+              <div key={u._id}>
+                <UserCard
+                  key={u._id}
+                  id={u._id}
+                  username={u.username}
+                  hobbies={u.hobbies}
+                  added={true}
+                />
+              </div>
+            ))
+          ) : (
+            <p>No friends found</p>
           )}
         </div>
       </section>

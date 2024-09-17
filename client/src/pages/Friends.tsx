@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 const FriendFeature = () => {
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
+  const [pendingSentRequests, setPendingSentRequests] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
@@ -25,7 +26,28 @@ const FriendFeature = () => {
       }
     };
 
+    const fetchPendingSentRequests = async () => {
+      try {
+        const res = await axios.get(
+          `${backendUrl}/api/user/friend/sentrequests`,
+          {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("refreshToken")}`,
+            },
+          }
+        );
+        console.log(res.data);
+        if (res.data.success) {
+          setPendingSentRequests(res.data.requests.map((u: any) => u.friend));
+        }
+      } catch (error: any) {
+        console.error("Error fetching pending requests:", error);
+        toast.error("Error fetching pending requests");
+      }
+    };
+
     fetchPendingRequests();
+    fetchPendingSentRequests();
   }, []);
 
   const handleAcceptRequest = async (userId: string) => {
@@ -73,37 +95,71 @@ const FriendFeature = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Pending Friend Requests
-      </h1>
+    <div className="flex flex-col items-center justify-center">
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          Pending Friend Requests
+        </h1>
 
-      {pendingRequests.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {pendingRequests.map((req) => (
-            <div key={req._id} className="border p-4 rounded shadow">
-              <h2 className="text-xl font-semibold">{req.username}</h2>
-              <p>Hobbies: {req.hobbies.join(", ")}</p>
-              <div className="flex gap-4 mt-4">
-                <button
-                  onClick={() => handleAcceptRequest(req._id)}
-                  className="bg-green-500 text-white px-4 py-2 rounded"
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() => handleRejectRequest(req._id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Reject
-                </button>
+        {pendingRequests.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pendingRequests.map((req) => (
+              <div key={req._id} className="border p-4 rounded shadow">
+                <h2 className="text-xl font-semibold">{req.username}</h2>
+                <p>Hobbies: {req.hobbies.join(", ")}</p>
+                <div className="flex gap-4 mt-4">
+                  <button
+                    onClick={() => handleAcceptRequest(req._id)}
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleRejectRequest(req._id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Reject
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-center">No pending friend requests</p>
-      )}
+            ))}
+          </div>
+        ) : (
+          <p className="text-center">No pending friend requests</p>
+        )}
+      </div>
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          Sent Pending Friend Requests
+        </h1>
+
+        {pendingSentRequests.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pendingSentRequests.map((req) => (
+              <div key={req._id} className="border p-4 rounded shadow">
+                <h2 className="text-xl font-semibold">{req.username}</h2>
+                <p>Hobbies: {req.hobbies.join(", ")}</p>
+                <div className="flex gap-4 mt-4">
+                  <button
+                    onClick={() => handleAcceptRequest(req._id)}
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleRejectRequest(req._id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center">No pending friend requests</p>
+        )}
+      </div>
     </div>
   );
 };
