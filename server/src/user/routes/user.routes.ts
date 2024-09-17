@@ -14,6 +14,7 @@ import {
   getAllUser,
   getUserData,
   getUserByUsername,
+  getSentFriendRequests,
 } from "../controllers/user.controller";
 import verifyUser from "../middlewares/verifyUser";
 
@@ -34,6 +35,7 @@ userRoutes.delete("/friend/remove/:friendId", verifyUser, removeFriend);
 
 // Friend request management routes
 userRoutes.get("/friend/requests", verifyUser, getFriendRequests);
+userRoutes.get("/friend/sentrequests", verifyUser, getSentFriendRequests);
 userRoutes.post("/friend/requests/accept", verifyUser, acceptFriendRequest);
 userRoutes.post("/friend/requests/reject", verifyUser, rejectFriendRequest);
 

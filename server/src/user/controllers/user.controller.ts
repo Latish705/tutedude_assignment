@@ -238,7 +238,10 @@ export const getFriends = async (req: Request, res: Response) => {
     const user = req.user;
 
     // Populate both the 'friend' and 'hobbies' fields from the User model
-    const friendships = await Friendship.find({ user: user._id }).populate({
+    const friendships = await Friendship.find({
+      user: user._id,
+      status: "accepted",
+    }).populate({
       path: "friend",
       select: "username hobbies",
     });
@@ -291,10 +294,28 @@ export const getFriendRequests = async (req: Request, res: Response) => {
     const user = req.user;
 
     const friendRequests = await Friendship.find({
+      friend: user._id,
+      status: "pending",
+    }).populate("user");
+    console.log("User get friend requests with id:", user.id);
+
+    res.status(200).json({ success: true, requests: friendRequests });
+  } catch (error: any) {
+    console.log(error);
+
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const getSentFriendRequests = async (req: Request, res: Response) => {
+  try {
+    //@ts-ignore
+    const user = req.user;
+    const friendRequests = await Friendship.find({
       user: user._id,
       status: "pending",
     }).populate("friend");
-    console.log("User get friend requests with id:", user.id);
+    console.log("User get friends request sent pending id : ", user._id);
 
     res.status(200).json({ success: true, requests: friendRequests });
   } catch (error: any) {
