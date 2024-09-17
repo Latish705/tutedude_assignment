@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { backendUrl } from "../../App";
 import { SignValidation } from "../../validations/SignValidations";
+import { toast } from "react-toastify";
 
 const hobbiesList = [
   "Reading",
@@ -39,14 +40,17 @@ const SignUpForm = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      const formData = { ...data, hobbies: selectedHobbies }; // Include selected hobbies in the form data
-      console.log(formData); // Log the full form data
+      const formData = { ...data, hobbies: selectedHobbies };
 
       const res = await axios.post(`${backendUrl}/api/user/register`, formData);
       if (res.data.success) {
+        toast.success("Signup Successfully");
         navigate("/login");
+      } else {
+        toast.error(res.data.message);
       }
     } catch (error: any) {
+      toast.error("Sign Failed Try Again");
       console.error("Signup error:", error.message);
     }
   };

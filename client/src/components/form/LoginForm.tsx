@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { backendUrl } from "../../App";
 import { useAuth } from "../../contexts/AuthContext";
 import { LoginValidation } from "../../validations/LoginValidations";
+import { toast } from "react-toastify";
 
 const LoginForm = () => {
   const { login } = useAuth();
@@ -26,13 +27,15 @@ const LoginForm = () => {
     try {
       const res = await axios.post(`${backendUrl}/api/user/login`, data);
       if (res.data.success) {
-        // dispatch(login(res.data));
+        toast.success("Logged In Successfully");
         login(res.data.accessToken, res.data.refreshToken);
         navigator("/");
+      } else {
+        toast.error(res.data.message);
       }
     } catch (error: any) {
+      toast.error("Logged In Failed");
       console.error("Login error:", error.message);
-      // Handle axios request error (e.g., show error message)
     }
   };
 
