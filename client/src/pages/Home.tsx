@@ -191,10 +191,13 @@ const Home = () => {
           {/* Users Section */}
           <section className="mb-10">
             <h2 className="text-2xl font-semibold mb-4">All Users</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full ">
               {users.length > 0 ? (
                 users.map((u) => (
-                  <div key={u._id}>
+                  <div
+                    key={u._id}
+                    className="flex items-center justify-between w-full p-4"
+                  >
                     <UserCard
                       key={u._id}
                       id={u._id}

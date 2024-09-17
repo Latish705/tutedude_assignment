@@ -45,7 +45,7 @@ const UserCard = ({ id, username, hobbies, added }: UserCardProps) => {
   };
 
   return (
-    <div className="flex flex-col max-w-80 border p-4 rounded shadow">
+    <div className="flex flex-col max-w-80 border p-4 rounded shadow w-full">
       <div className="flex justify-between items-center">
         <CgProfile size={50} />
         <div className="flex gap-2">
