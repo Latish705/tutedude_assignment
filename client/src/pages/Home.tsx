@@ -6,7 +6,7 @@ import UserCard from "../components/card/UserCard";
 import Dialog from "@mui/material/Dialog";
 import { useDialog } from "../contexts/DialogContext";
 import { toast } from "react-toastify";
-import { CircularProgress } from "@mui/material"; // Import CircularProgress for loading spinner
+import { CircularProgress } from "@mui/material";
 
 const Home = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -15,75 +15,75 @@ const Home = () => {
   const [mutalHobbiesFriends, setMutalHobbiesFriends] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true); // State for loading
+  const [loading, setLoading] = useState(true);
 
   const { open, setOpen } = useDialog();
   const [isFriend, setIsFriend] = useState<boolean>(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [usersRes, friendsRes, mutualFriendsRes, mutualHobbiesRes] =
-          await Promise.all([
-            axios.get(`${backendUrl}/api/user/getall`, {
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [usersRes, friendsRes, mutualFriendsRes, mutualHobbiesRes] =
+        await Promise.all([
+          axios.get(`${backendUrl}/api/user/getall`, {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("refreshToken")}`,
+            },
+          }),
+          axios.get(`${backendUrl}/api/user/friends`, {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("refreshToken")}`,
+            },
+          }),
+          axios.get(
+            `${backendUrl}/api/user/friend/recommendations/mutual-friends`,
+            {
               headers: {
                 Authorization: `Bearer ${Cookies.get("refreshToken")}`,
               },
-            }),
-            axios.get(`${backendUrl}/api/user/friends`, {
+            }
+          ),
+          axios.get(
+            `${backendUrl}/api/user/friend/recommendations/mutual-hobbies`,
+            {
               headers: {
                 Authorization: `Bearer ${Cookies.get("refreshToken")}`,
               },
-            }),
-            axios.get(
-              `${backendUrl}/api/user/friend/recommendations/mutual-friends`,
-              {
-                headers: {
-                  Authorization: `Bearer ${Cookies.get("refreshToken")}`,
-                },
-              }
-            ),
-            axios.get(
-              `${backendUrl}/api/user/friend/recommendations/mutual-hobbies`,
-              {
-                headers: {
-                  Authorization: `Bearer ${Cookies.get("refreshToken")}`,
-                },
-              }
-            ),
-          ]);
+            }
+          ),
+        ]);
 
-        if (usersRes.data.success) {
-          if (usersRes.data.users) {
-            setUsers(usersRes.data.users);
-          }
+      if (usersRes.data.success) {
+        if (usersRes.data.users) {
+          setUsers(usersRes.data.users);
         }
-
-        if (friendsRes.data.success) {
-          if (friendsRes.data.friends) {
-            setFriends(friendsRes.data.friends);
-          }
-        }
-        if (mutualFriendsRes.data.success) {
-          if (mutualFriendsRes.data.recommendedFriends) {
-            setMutalFriends(
-              mutualFriendsRes.data.recommendedFriends.map((f: any) => f.friend)
-            );
-          }
-        }
-        if (mutualHobbiesRes.data.success) {
-          if (mutualHobbiesRes.data.recommendedFriends) {
-            setMutalHobbiesFriends(mutualHobbiesRes.data.recommendedFriends);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
       }
-    };
 
+      if (friendsRes.data.success) {
+        if (friendsRes.data.friends) {
+          setFriends(friendsRes.data.friends);
+        }
+      }
+      if (mutualFriendsRes.data.success) {
+        if (mutualFriendsRes.data.recommendedFriends) {
+          setMutalFriends(
+            mutualFriendsRes.data.recommendedFriends.map((f: any) => f.friend)
+          );
+        }
+      }
+      if (mutualHobbiesRes.data.success) {
+        if (mutualHobbiesRes.data.recommendedFriends) {
+          setMutalHobbiesFriends(mutualHobbiesRes.data.recommendedFriends);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -123,7 +123,8 @@ const Home = () => {
       );
       if (res.data.success) {
         toast.success("Friend added successfully");
-        setIsFriend(true); // Update friendship status
+        setIsFriend(true);
+        fetchData();
       }
     } catch (error) {
       console.error("Error adding friend:", error);
@@ -144,7 +145,8 @@ const Home = () => {
       );
       if (res.data.success) {
         toast.success("Friend removed successfully");
-        setIsFriend(false); // Update friendship status
+        setIsFriend(false);
+        fetchData();
       }
     } catch (error) {
       console.error("Error removing friend:", error);
@@ -153,7 +155,7 @@ const Home = () => {
   };
 
   const handleDialogClose = () => {
-    setOpen(false); // Close the dialog using context
+    setOpen(false);
   };
 
   return (
@@ -213,7 +215,6 @@ const Home = () => {
             </div>
           </section>
 
-          {/* Recommended Friends with Mutual Friends */}
           <section className="mb-10">
             <h2 className="text-2xl font-semibold mb-4">
               Recommended Friends (Mutual Friends)
@@ -227,7 +228,7 @@ const Home = () => {
                       id={u._id}
                       username={u.username}
                       hobbies={u.hobbies}
-                      added={true}
+                      added={false}
                     />
                   </div>
                 ))
@@ -237,7 +238,6 @@ const Home = () => {
             </div>
           </section>
 
-          {/* Recommended Friends with Mutual Hobbies */}
           <section className="mb-10">
             <h2 className="text-2xl font-semibold mb-4">
               Recommended Friends (Mutual Hobbies)
@@ -251,7 +251,7 @@ const Home = () => {
                       id={u._id}
                       username={u.username}
                       hobbies={u.hobbies}
-                      added={true}
+                      added={false}
                     />
                   </div>
                 ))
@@ -286,28 +286,31 @@ const Home = () => {
           {/* Dialog Box */}
           <Dialog open={open} onClose={handleDialogClose}>
             <div className="p-4">
-              {selectedUser ? (
+              {selectedUser && (
                 <>
-                  <h2>{selectedUser.username}</h2>
-                  <p>Hobbies: {selectedUser.hobbies.join(", ")}</p>
-                  <button
-                    onClick={isFriend ? handleRemoveFriend : handleAddFriend}
-                    className={`p-2 rounded ${
-                      isFriend ? "bg-red-500" : "bg-green-500"
-                    } text-white`}
-                  >
-                    {isFriend ? "Remove Friend" : "Add Friend"}
-                  </button>
+                  <h2 className="text-xl font-semibold mb-2">
+                    {selectedUser.username}
+                  </h2>
+                  <p className="mb-4">
+                    Hobbies: {selectedUser.hobbies.join(", ")}
+                  </p>
+                  {isFriend ? (
+                    <button
+                      onClick={handleRemoveFriend}
+                      className="bg-red-500 text-white px-4 py-2 rounded"
+                    >
+                      Remove Friend
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleAddFriend}
+                      className="bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                      Add Friend
+                    </button>
+                  )}
                 </>
-              ) : (
-                <p>User not found</p>
               )}
-              <button
-                onClick={handleDialogClose}
-                className="bg-gray-500 text-white p-2 rounded mt-4"
-              >
-                Close
-              </button>
             </div>
           </Dialog>
         </>
