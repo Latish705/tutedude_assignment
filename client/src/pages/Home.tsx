@@ -55,21 +55,31 @@ const Home = () => {
           ]);
 
         if (usersRes.data.success) {
-          setUsers(usersRes.data.users);
+          if (usersRes.data.users) {
+            setUsers(usersRes.data.users);
+          }
         }
         if (friendsRes.data.success) {
-          setFriends(friendsRes.data.friendships.map((f: any) => f.friend));
+          if (friendsRes.data.friendships) {
+            setFriends(friendsRes.data.friendships.map((f: any) => f.friend));
+          }
         }
         if (mutualFriendsRes.data.success) {
-          setMutalFriends(mutualFriendsRes.data.recommendedFriends);
+          if (mutualFriendsRes.data.recommendedFriends) {
+            setMutalFriends(
+              mutualFriendsRes.data.recommendedFriends.map((f: any) => f.friend)
+            );
+          }
         }
         if (mutualHobbiesRes.data.success) {
-          setMutalHobbiesFriends(mutualHobbiesRes.data.recommendedFriends);
+          if (mutualHobbiesRes.data.recommendedFriends) {
+            setMutalHobbiesFriends(mutualHobbiesRes.data.recommendedFriends);
+          }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setLoading(false); // Set loading to false when fetching is done
+        setLoading(false);
       }
     };
 
