@@ -53,8 +53,22 @@ export default function SideBarAdmin() {
   };
 
   const handleLogout = () => {
-    Cookies.remove("accessToken");
-    navigate("/");
+    const logoutUser = async () => {
+      try {
+        const res = await axios.get(`${backendUrl}/api/user/logout`, {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("refreshToken")}`,
+          },
+        });
+        if (res.data.success) {
+          Cookies.remove("refreshToken");
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("Error logging out:", error);
+      }
+    };
+    logoutUser();
   };
 
   const handleRedirection = (index: number) => {
