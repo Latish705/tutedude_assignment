@@ -5,7 +5,7 @@ const HomeLayout = () => {
   return (
     <div className="">
       <SideBarAdmin />
-      <div className="ml-[250px]">
+      <div className="md:ml-[250px]">
         <Outlet />
       </div>
     </div>

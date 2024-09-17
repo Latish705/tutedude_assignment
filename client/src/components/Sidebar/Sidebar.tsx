@@ -1,29 +1,37 @@
-import React from "react";
+import * as React from "react";
+import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
 import List from "@mui/material/List";
+import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import Divider from "@mui/material/Divider";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MailIcon from "@mui/icons-material/Mail";
+
+import Typography from "@mui/material/Typography";
+import { useMediaQuery } from "react-responsive";
 import { MdOutlineMenu } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+
 import axios from "axios";
 import { backendUrl } from "../../App";
-import { useDialog } from "../../contexts/DialogContext";
+
+const link = ["", "friends", "profile"];
+
+const icons = [<InboxIcon />, <MailIcon />, <MdOutlineMenu />];
 
 export default function SideBarAdmin() {
-  const { open } = useDialog(); // Access dialog context to apply overlay when dialog is open
-  const [openSidebar, setOpenSidebar] = React.useState(true);
   const [user, setUser] = React.useState<any>({});
   const navigate = useNavigate();
-  const isLargeScreen = true;
+  const [open, setOpen] = React.useState(false);
+  const isLargeScreen = useMediaQuery({ query: "(min-width: 600px)" });
 
   React.useEffect(() => {
-    setOpenSidebar(isLargeScreen);
+    setOpen(isLargeScreen);
     const getUser = async () => {
       try {
         const refreshToken = Cookies.get("refreshToken");
@@ -41,18 +49,16 @@ export default function SideBarAdmin() {
   }, [isLargeScreen]);
 
   const toggleDrawer = (newOpen: any) => () => {
-    setOpenSidebar(newOpen);
+    setOpen(newOpen);
   };
 
   const handleLogout = () => {
     Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    navigate("/login");
+    navigate("/");
   };
 
   const handleRedirection = (index: number) => {
-    const links = ["", "friends", "profile"];
-    navigate(`/${links[index]}`);
+    navigate(`/${link[index]}`);
   };
 
   const DrawerList = (
@@ -66,20 +72,20 @@ export default function SideBarAdmin() {
       role="presentation"
       onClick={isLargeScreen ? undefined : toggleDrawer(false)}
     >
-      <Link to="/admin/overview">
-        <div className="flex flex-row items-center gap-2 h-12 m-2">
-          <h1 className="text-xl font-bold text-primary">Fellow Friend</h1>
+      <Link to="/">
+        <div className="flex flex-row items-center gap-2 sm:gap-2 md:gap-4 xl:gap-4 h-12 m-2">
+          {/* <img src={LogoC} alt="" height={30} width={30} /> */}
+          <h1 className=" text-xs font-bold  text-center text-[#56B280] font-sans md:text-xl lg:text-xl">
+            Fellow Friend
+          </h1>
         </div>
       </Link>
       <Divider />
       <List>
-        {["Overview", "Friends", "Profile"].map((text, index) => (
+        {["Overview", "Requests", "Profile"].map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton onClick={() => handleRedirection(index)}>
-              <ListItemIcon>
-                {/* Add icons as needed */}
-                <MdOutlineMenu />
-              </ListItemIcon>
+              <ListItemIcon>{icons[index]}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
           </ListItem>
@@ -87,8 +93,13 @@ export default function SideBarAdmin() {
       </List>
       <Divider />
       <Box sx={{ mt: "auto", p: 2, textAlign: "center" }}>
-        <h2>{user.username}</h2>
-        <Button onClick={handleLogout} className="text-primary">
+        <Typography variant="h6" component="div" sx={{ mt: 1 }}>
+          {user.username}
+        </Typography>
+        {/* <Typography variant="body2" color="text.secondary">
+          {user.email}
+        </Typography> */}
+        <Button onClick={handleLogout} className="text-[#56B280]">
           Logout
         </Button>
       </Box>
@@ -96,21 +107,16 @@ export default function SideBarAdmin() {
   );
 
   return (
-    <div className={`${open ? "dark-overlay" : ""}`}>
+    <div>
       {!isLargeScreen && (
         <Button onClick={toggleDrawer(true)} className="block">
           <MdOutlineMenu size={30} />
         </Button>
       )}
       <Drawer
-        open={openSidebar}
+        open={open}
         onClose={toggleDrawer(false)}
         variant={isLargeScreen ? "persistent" : "temporary"}
-        PaperProps={{
-          style: {
-            background: open ? "rgba(0, 0, 0, 0.5)" : "white", // Darken sidebar when dialog is open
-          },
-        }}
       >
         {DrawerList}
       </Drawer>

@@ -3,10 +3,12 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { backendUrl } from "../App";
 import { toast } from "react-toastify";
+import { CircularProgress } from "@mui/material"; // Import CircularProgress for loading spinner
 
 const FriendFeature = () => {
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
   const [pendingSentRequests, setPendingSentRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true); // State for loading
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
@@ -16,7 +18,6 @@ const FriendFeature = () => {
             Authorization: `Bearer ${Cookies.get("refreshToken")}`,
           },
         });
-        console.log(res.data);
         if (res.data.success) {
           setPendingRequests(res.data.requests.map((u: any) => u.friend));
         }
@@ -36,23 +37,26 @@ const FriendFeature = () => {
             },
           }
         );
-        console.log(res.data);
         if (res.data.success) {
           setPendingSentRequests(res.data.requests.map((u: any) => u.friend));
         }
-      } catch (error: any) {
-        console.error("Error fetching pending requests:", error);
-        toast.error("Error fetching pending requests");
+      } catch (error) {
+        console.error("Error fetching pending sent requests:", error);
+        toast.error("Error fetching pending sent requests");
       }
     };
 
-    fetchPendingRequests();
-    fetchPendingSentRequests();
+    const fetchRequests = async () => {
+      setLoading(true); // Set loading to true when fetching starts
+      await Promise.all([fetchPendingRequests(), fetchPendingSentRequests()]);
+      setLoading(false); // Set loading to false when fetching is done
+    };
+
+    fetchRequests();
   }, []);
 
   const handleAcceptRequest = async (userId: string) => {
     try {
-      console.log(userId);
       const res = await axios.post(
         `${backendUrl}/api/user/friend/requests/accept`,
         { userId },
@@ -74,7 +78,6 @@ const FriendFeature = () => {
 
   const handleRejectRequest = async (userId: string) => {
     try {
-      console.log(userId);
       const res = await axios.post(
         `${backendUrl}/api/user/friend/requests/reject`,
         { userId },
@@ -101,7 +104,11 @@ const FriendFeature = () => {
           Pending Friend Requests
         </h1>
 
-        {pendingRequests.length > 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <CircularProgress />
+          </div>
+        ) : pendingRequests.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {pendingRequests.map((req) => (
               <div key={req._id} className="border p-4 rounded shadow">
@@ -133,7 +140,11 @@ const FriendFeature = () => {
           Sent Pending Friend Requests
         </h1>
 
-        {pendingSentRequests.length > 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <CircularProgress />
+          </div>
+        ) : pendingSentRequests.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {pendingSentRequests.map((req) => (
               <div key={req._id} className="border p-4 rounded shadow">
@@ -157,7 +168,7 @@ const FriendFeature = () => {
             ))}
           </div>
         ) : (
-          <p className="text-center">No pending friend requests</p>
+          <p className="text-center">No sent pending friend requests</p>
         )}
       </div>
     </div>
